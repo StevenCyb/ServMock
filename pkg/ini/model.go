@@ -4,12 +4,12 @@ package ini
 type Key struct {
 	Name      string
 	Value     string
-	LineIndex uint
+	LineIndex uint64
 }
 
 // Section represents a section in the INI file
 type Section struct {
 	Name      string
 	Keys      []Key
-	LineIndex uint
+	LineIndex uint64
 }

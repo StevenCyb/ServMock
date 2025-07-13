@@ -11,7 +11,7 @@ import (
 // else duplicate section headers merge into the first occurrence.
 func Parse(r io.Reader, allowDuplicated bool) ([]Section, error) {
 	scanner := bufio.NewScanner(r)
-	lineIndex := uint(0)
+	lineIndex := uint64(0)
 
 	// Initialize with global (default) section
 	sections := []Section{{Name: "default", LineIndex: lineIndex, Keys: nil}}
