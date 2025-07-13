@@ -151,3 +151,21 @@ b=2
 	assert.Equal(t, "b", dup2.Keys[0].Name)
 	assert.Equal(t, "2", dup2.Keys[0].Value)
 }
+
+func TestIndexing(t *testing.T) {
+	raw := `;default section
+x=y
+
+[dup]
+a=1
+
+[dup]
+b=2
+`
+	sections, err := Parse(strings.NewReader(raw), true)
+	assert.NoError(t, err)
+	assert.Len(t, sections, 3)
+	assert.Equal(t, 0, int(sections[0].LineIndex))
+	assert.Equal(t, 4, int(sections[1].LineIndex))
+	assert.Equal(t, 7, int(sections[2].LineIndex))
+}

@@ -11,12 +11,14 @@ import (
 // else duplicate section headers merge into the first occurrence.
 func Parse(r io.Reader, allowDuplicated bool) ([]Section, error) {
 	scanner := bufio.NewScanner(r)
+	lineIndex := uint(0)
 
 	// Initialize with global (default) section
-	sections := []Section{{Name: "default", Keys: nil}}
+	sections := []Section{{Name: "default", LineIndex: lineIndex, Keys: nil}}
 	current := &sections[0]
 
 	for scanner.Scan() {
+		lineIndex++
 		line := strings.TrimSpace(scanner.Text())
 		if line == "" || strings.HasPrefix(line, "#") || strings.HasPrefix(line, ";") {
 			continue
@@ -41,9 +43,10 @@ func Parse(r io.Reader, allowDuplicated bool) ([]Section, error) {
 			}
 
 			if !found {
-				sections = append(sections, Section{Name: name, Keys: nil})
+				sections = append(sections, Section{Name: name, LineIndex: lineIndex, Keys: nil})
 				current = &sections[len(sections)-1]
 			}
+
 			continue
 		}
 
@@ -54,7 +57,7 @@ func Parse(r io.Reader, allowDuplicated bool) ([]Section, error) {
 			if key == "" {
 				return nil, &EmptyKeyError{SectionName: current.Name}
 			}
-			current.Keys = append(current.Keys, Key{Name: key, Value: val})
+			current.Keys = append(current.Keys, Key{Name: key, Value: val, LineIndex: lineIndex})
 		}
 	}
 
