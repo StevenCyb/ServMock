@@ -88,8 +88,8 @@ func propagateResponseBehavior(behavior *model.Behavior, property ini.Property) 
 		}
 	case "redirect":
 		behavior.ResponseBehavior.Body = Ptr(property.Value)
-	case "stream":
-		behavior.ResponseBehavior.Stream = strings.ToLower(property.Value) == "true"
+	case "sse":
+		behavior.ResponseBehavior.SSE = strings.ToLower(property.Value) == "true"
 	case "repeat":
 		if err := praseRepeat(behavior, property); err != nil {
 			return err

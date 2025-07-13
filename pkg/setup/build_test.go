@@ -253,22 +253,22 @@ func TestBuild_RedirectProperty(t *testing.T) {
 	assert.Equal(t, "/new", *bs.Behaviors[0].ResponseBehavior.Body)
 }
 
-func TestBuild_StreamPropertyTrue(t *testing.T) {
+func TestBuild_SSEPropertyTrue(t *testing.T) {
 	sections := []ini.Section{
-		{Name: "GET /stream", LineIndex: 19, Properties: []ini.Property{{Key: "stream", Value: "true", LineIndex: 19}}},
+		{Name: "GET /stream", LineIndex: 19, Properties: []ini.Property{{Key: "sse", Value: "true", LineIndex: 19}}},
 	}
 	bs, err := Build(sections)
 	assert.NoError(t, err)
-	assert.True(t, bs.Behaviors[0].ResponseBehavior.Stream)
+	assert.True(t, bs.Behaviors[0].ResponseBehavior.SSE)
 }
 
-func TestBuild_StreamPropertyFalse(t *testing.T) {
+func TestBuild_SSEPropertyFalse(t *testing.T) {
 	sections := []ini.Section{
-		{Name: "GET /stream", LineIndex: 20, Properties: []ini.Property{{Key: "stream", Value: "false", LineIndex: 20}}},
+		{Name: "GET /stream", LineIndex: 20, Properties: []ini.Property{{Key: "sse", Value: "false", LineIndex: 20}}},
 	}
 	bs, err := Build(sections)
 	assert.NoError(t, err)
-	assert.False(t, bs.Behaviors[0].ResponseBehavior.Stream)
+	assert.False(t, bs.Behaviors[0].ResponseBehavior.SSE)
 }
 
 func TestBuild_InvalidHttpMethod(t *testing.T) {

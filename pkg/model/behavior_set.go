@@ -13,13 +13,13 @@ type BehaviorSet struct {
 
 // ResponseBehavior defines the structure of a response behavior.
 type ResponseBehavior struct {
+	Delay      *time.Duration
 	StatusCode *uint16
 	Body       *string
-	Delay      *time.Duration
 	Headers    map[string]string
 	Cookies    []*http.Cookie
 	Redirect   *string
-	Stream     bool
+	SSE        bool
 }
 
 // Behavior defines the structure of a behavior with an associated HTTP method and URL.
