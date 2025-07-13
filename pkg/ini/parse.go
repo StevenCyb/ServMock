@@ -57,7 +57,7 @@ func Parse(r io.Reader, allowDuplicated bool) ([]Section, error) {
 			if key == "" {
 				return nil, &EmptyKeyError{SectionName: current.Name}
 			}
-			current.Keys = append(current.Keys, Key{Name: key, Value: val, LineIndex: lineIndex})
+			current.Keys = append(current.Keys, Property{Name: key, Value: val, LineIndex: lineIndex})
 		}
 	}
 
