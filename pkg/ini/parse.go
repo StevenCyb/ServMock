@@ -14,7 +14,7 @@ func Parse(r io.Reader, allowDuplicated bool) ([]Section, error) {
 	lineIndex := uint64(0)
 
 	// Initialize with global (default) section
-	sections := []Section{{Name: "default", LineIndex: lineIndex, Keys: nil}}
+	sections := []Section{{Name: "default", LineIndex: lineIndex, Properties: nil}}
 	current := &sections[0]
 
 	for scanner.Scan() {
@@ -43,7 +43,7 @@ func Parse(r io.Reader, allowDuplicated bool) ([]Section, error) {
 			}
 
 			if !found {
-				sections = append(sections, Section{Name: name, LineIndex: lineIndex, Keys: nil})
+				sections = append(sections, Section{Name: name, LineIndex: lineIndex, Properties: nil})
 				current = &sections[len(sections)-1]
 			}
 
@@ -57,7 +57,7 @@ func Parse(r io.Reader, allowDuplicated bool) ([]Section, error) {
 			if key == "" {
 				return nil, &EmptyKeyError{SectionName: current.Name}
 			}
-			current.Keys = append(current.Keys, Property{Name: key, Value: val, LineIndex: lineIndex})
+			current.Properties = append(current.Properties, Property{Key: key, Value: val, LineIndex: lineIndex})
 		}
 	}
 

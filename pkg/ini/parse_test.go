@@ -31,23 +31,23 @@ password = secret
 	assert.NoError(t, err)
 	assert.Len(t, sections, 3)
 	assert.Equal(t, "default", sections[0].Name)
-	assert.Len(t, sections[0].Keys, 1)
-	assert.Equal(t, "key_global", sections[0].Keys[0].Name)
-	assert.Equal(t, "global", sections[0].Keys[0].Value)
+	assert.Len(t, sections[0].Properties, 1)
+	assert.Equal(t, "key_global", sections[0].Properties[0].Key)
+	assert.Equal(t, "global", sections[0].Properties[0].Value)
 	srv := sections[1]
 	assert.Equal(t, "server", srv.Name)
-	assert.Len(t, srv.Keys, 2)
-	assert.Equal(t, "port", srv.Keys[0].Name)
-	assert.Equal(t, "8080", srv.Keys[0].Value)
-	assert.Equal(t, "host", srv.Keys[1].Name)
-	assert.Equal(t, "localhost", srv.Keys[1].Value)
+	assert.Len(t, srv.Properties, 2)
+	assert.Equal(t, "port", srv.Properties[0].Key)
+	assert.Equal(t, "8080", srv.Properties[0].Value)
+	assert.Equal(t, "host", srv.Properties[1].Key)
+	assert.Equal(t, "localhost", srv.Properties[1].Value)
 	db := sections[2]
 	assert.Equal(t, "database", db.Name)
-	assert.Len(t, db.Keys, 2)
-	assert.Equal(t, "user", db.Keys[0].Name)
-	assert.Equal(t, "root", db.Keys[0].Value)
-	assert.Equal(t, "password", db.Keys[1].Name)
-	assert.Equal(t, "secret", db.Keys[1].Value)
+	assert.Len(t, db.Properties, 2)
+	assert.Equal(t, "user", db.Properties[0].Key)
+	assert.Equal(t, "root", db.Properties[0].Value)
+	assert.Equal(t, "password", db.Properties[1].Key)
+	assert.Equal(t, "secret", db.Properties[1].Value)
 }
 
 func TestGlobalOnly(t *testing.T) {
@@ -59,11 +59,11 @@ baz = qux
 	assert.NoError(t, err)
 	assert.Len(t, sections, 1)
 	assert.Equal(t, "default", sections[0].Name)
-	assert.Len(t, sections[0].Keys, 2)
-	assert.Equal(t, "foo", sections[0].Keys[0].Name)
-	assert.Equal(t, "bar", sections[0].Keys[0].Value)
-	assert.Equal(t, "baz", sections[0].Keys[1].Name)
-	assert.Equal(t, "qux", sections[0].Keys[1].Value)
+	assert.Len(t, sections[0].Properties, 2)
+	assert.Equal(t, "foo", sections[0].Properties[0].Key)
+	assert.Equal(t, "bar", sections[0].Properties[0].Value)
+	assert.Equal(t, "baz", sections[0].Properties[1].Key)
+	assert.Equal(t, "qux", sections[0].Properties[1].Value)
 }
 
 func TestCommentsAndBlank(t *testing.T) {
@@ -80,11 +80,11 @@ key=value
 	assert.NoError(t, err)
 	assert.Len(t, sections, 2)
 	assert.Equal(t, "default", sections[0].Name)
-	assert.Len(t, sections[0].Keys, 0)
+	assert.Len(t, sections[0].Properties, 0)
 	assert.Equal(t, "sec", sections[1].Name)
-	assert.Len(t, sections[1].Keys, 1)
-	assert.Equal(t, "key", sections[1].Keys[0].Name)
-	assert.Equal(t, "value", sections[1].Keys[0].Value)
+	assert.Len(t, sections[1].Properties, 1)
+	assert.Equal(t, "key", sections[1].Properties[0].Key)
+	assert.Equal(t, "value", sections[1].Properties[0].Value)
 }
 
 func TestEmptySectionNameError(t *testing.T) {
@@ -123,11 +123,11 @@ b=2
 	assert.Len(t, sections, 2)
 	dup := sections[1]
 	assert.Equal(t, "dup", dup.Name)
-	assert.Len(t, dup.Keys, 2)
-	assert.Equal(t, "a", dup.Keys[0].Name)
-	assert.Equal(t, "1", dup.Keys[0].Value)
-	assert.Equal(t, "b", dup.Keys[1].Name)
-	assert.Equal(t, "2", dup.Keys[1].Value)
+	assert.Len(t, dup.Properties, 2)
+	assert.Equal(t, "a", dup.Properties[0].Key)
+	assert.Equal(t, "1", dup.Properties[0].Value)
+	assert.Equal(t, "b", dup.Properties[1].Key)
+	assert.Equal(t, "2", dup.Properties[1].Value)
 }
 
 func TestDuplicateSectionKeepAsDuplicate(t *testing.T) {
@@ -144,12 +144,12 @@ b=2
 	dup2 := sections[2]
 	assert.Equal(t, "dup", dup.Name)
 	assert.Equal(t, "dup", dup2.Name)
-	assert.Len(t, dup.Keys, 1)
-	assert.Len(t, dup2.Keys, 1)
-	assert.Equal(t, "a", dup.Keys[0].Name)
-	assert.Equal(t, "1", dup.Keys[0].Value)
-	assert.Equal(t, "b", dup2.Keys[0].Name)
-	assert.Equal(t, "2", dup2.Keys[0].Value)
+	assert.Len(t, dup.Properties, 1)
+	assert.Len(t, dup2.Properties, 1)
+	assert.Equal(t, "a", dup.Properties[0].Key)
+	assert.Equal(t, "1", dup.Properties[0].Value)
+	assert.Equal(t, "b", dup2.Properties[0].Key)
+	assert.Equal(t, "2", dup2.Properties[0].Value)
 }
 
 func TestIndexing(t *testing.T) {
