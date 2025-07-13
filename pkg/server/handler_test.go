@@ -148,3 +148,57 @@ func TestHandleRequest_NotFound_NoDefault(t *testing.T) {
 	ts.handleRequest(w, r)
 	assert.Equal(t, http.StatusNotFound, w.Code)
 }
+
+func TestHandleRequest_RepeatBehavior_Removal(t *testing.T) {
+	body := "repeat once"
+	repeat := uint(1)
+	beh := &model.Behavior{
+		Method:           "GET",
+		URL:              "/repeat",
+		Repeat:           &repeat,
+		ResponseBehavior: &model.ResponseBehavior{Body: &body},
+	}
+	ts := newTestServer([]*model.Behavior{beh}, nil)
+
+	// First call: should match and decrement repeat to 0, then remove behavior
+	r1 := httptest.NewRequest("GET", "/repeat", nil)
+	w1 := httptest.NewRecorder()
+	ts.handleRequest(w1, r1)
+	assert.Equal(t, http.StatusOK, w1.Code)
+	assert.Equal(t, body, w1.Body.String())
+	assert.Len(t, ts.behaviorSet.Behaviors, 0, "Behavior should be removed after repeat reaches 0")
+
+	// Second call: should not match, returns NotFound
+	r2 := httptest.NewRequest("GET", "/repeat", nil)
+	w2 := httptest.NewRecorder()
+	ts.handleRequest(w2, r2)
+	assert.Equal(t, http.StatusNotFound, w2.Code)
+}
+
+func TestHandleRequest_RepeatBehavior_Decrement(t *testing.T) {
+	body := "repeat twice"
+	repeat := uint(2)
+	beh := &model.Behavior{
+		Method:           "GET",
+		URL:              "/repeat2",
+		Repeat:           &repeat,
+		ResponseBehavior: &model.ResponseBehavior{Body: &body},
+	}
+	ts := newTestServer([]*model.Behavior{beh}, nil)
+
+	// First call: should match and decrement repeat to 1
+	r1 := httptest.NewRequest("GET", "/repeat2", nil)
+	w1 := httptest.NewRecorder()
+	ts.handleRequest(w1, r1)
+	assert.Equal(t, http.StatusOK, w1.Code)
+	assert.Equal(t, body, w1.Body.String())
+	assert.Len(t, ts.behaviorSet.Behaviors, 1, "Behavior should still exist after first call")
+
+	// Second call: should match and decrement repeat to 0, then remove behavior
+	r2 := httptest.NewRequest("GET", "/repeat2", nil)
+	w2 := httptest.NewRecorder()
+	ts.handleRequest(w2, r2)
+	assert.Equal(t, http.StatusOK, w2.Code)
+	assert.Equal(t, body, w2.Body.String())
+	assert.Len(t, ts.behaviorSet.Behaviors, 0, "Behavior should be removed after second call")
+}

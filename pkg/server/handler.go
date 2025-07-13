@@ -70,8 +70,15 @@ func (s *Server) findMatchingBehavior(r *http.Request) (*model.ResponseBehavior,
 	var matchingBehavior *model.ResponseBehavior
 	var statusCode = http.StatusOK
 
-	for _, behavior := range s.behaviorSet.Behaviors {
+	for i, behavior := range s.behaviorSet.Behaviors {
 		if behavior.Method == model.HttpMethod(r.Method) && behavior.URL == r.URL.Path {
+			if behavior.Repeat != nil {
+				*behavior.Repeat--
+				if *behavior.Repeat <= 0 {
+					s.behaviorSet.Behaviors = append(s.behaviorSet.Behaviors[:i], s.behaviorSet.Behaviors[i+1:]...)
+				}
+			}
+
 			matchingBehavior = behavior.ResponseBehavior
 			break
 		}
