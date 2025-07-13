@@ -14,7 +14,10 @@ func Build(sections []ini.Section) (*model.BehaviorSet, error) {
 	bs := &model.BehaviorSet{}
 
 	for _, section := range sections {
-		behavior := getBehavior(section, bs)
+		behavior, err := buildBehavior(section, bs)
+		if err != nil {
+			return nil, err
+		}
 		for _, property := range section.Properties {
 			if err := propagateResponseBehavior(behavior, property); err != nil {
 				return nil, err
@@ -25,22 +28,20 @@ func Build(sections []ini.Section) (*model.BehaviorSet, error) {
 	return bs, nil
 }
 
-func getBehavior(section ini.Section, bs *model.BehaviorSet) *model.Behavior {
+func buildBehavior(section ini.Section, bs *model.BehaviorSet) (*model.Behavior, error) {
 	b := &model.Behavior{ResponseBehavior: &model.ResponseBehavior{}}
 	if section.Name == "default" {
-		if bs.DefaultBehavior == nil {
-			bs.DefaultBehavior = b.ResponseBehavior
-		} else {
-			b.ResponseBehavior = bs.DefaultBehavior
-		}
+		bs.DefaultBehavior = b.ResponseBehavior
 	} else {
 		if bs.Behaviors == nil {
 			bs.Behaviors = []*model.Behavior{}
 		}
-		parseBehaviorHeader(b, section.Name, section.LineIndex)
+		if err := parseBehaviorHeader(b, section.Name, section.LineIndex); err != nil {
+			return nil, err
+		}
 		bs.Behaviors = append(bs.Behaviors, b)
 	}
-	return b
+	return b, nil
 }
 
 func parseBehaviorHeader(behaviors *model.Behavior, line string, lineIndex uint64) error {
@@ -166,10 +167,23 @@ func parseHeaderAttribute(responseBehavior *model.ResponseBehavior, property ini
 }
 
 func parseCookie(responseBehavior *model.ResponseBehavior, property ini.Property) error {
-	cookie := &http.Cookie{}
-	switch property.Key {
-	case "cookie.name":
+	var cookie *http.Cookie
+	if property.Key == "cookie.name" {
+		cookie = &http.Cookie{}
+		responseBehavior.Cookies = append(responseBehavior.Cookies, cookie)
 		cookie.Name = property.Value
+		return nil
+	} else if len(responseBehavior.Cookies) == 0 {
+		return &MalformedPropertyError{
+			LineIndex: property.LineIndex,
+			Line:      property.Key + "=" + property.Value,
+			Details:   Ptr("cookie.name must be set before other cookie properties"),
+		}
+	} else {
+		cookie = responseBehavior.Cookies[len(responseBehavior.Cookies)-1]
+	}
+
+	switch property.Key {
 	case "cookie.value":
 		cookie.Value = property.Value
 	case "cookie.path":
@@ -235,7 +249,6 @@ func parseCookie(responseBehavior *model.ResponseBehavior, property ini.Property
 			Details:   Ptr("Unknown cookie property: " + property.Value),
 		}
 	}
-	responseBehavior.Cookies = append(responseBehavior.Cookies, cookie)
 
 	return nil
 }
