@@ -8,7 +8,6 @@ import (
 
 	"github.com/StevenCyb/ServMock/pkg/ini"
 	"github.com/StevenCyb/ServMock/pkg/model"
-	"github.com/StevenCyb/ServMock/pkg/utils"
 )
 
 func Build(sections []ini.Section) (*model.BehaviorSet, error) {
@@ -52,7 +51,7 @@ func parseBehaviorHeader(behaviors *model.Behavior, line string, lineIndex uint6
 
 	url := strings.TrimSpace(behaviorHeader[1])
 	if url == "" || !strings.HasPrefix(url, "/") {
-		return &MalformedBehaviorHeaderError{Line: line, LineIndex: lineIndex, Details: utils.StringPtr("URL cannot be empty")}
+		return &MalformedBehaviorHeaderError{Line: line, LineIndex: lineIndex, Details: Ptr("URL cannot be empty")}
 	}
 
 	method, match := model.HttpMethodFromString(behaviorHeader[0])
@@ -60,7 +59,7 @@ func parseBehaviorHeader(behaviors *model.Behavior, line string, lineIndex uint6
 		return &MalformedBehaviorHeaderError{
 			Line:      line,
 			LineIndex: lineIndex,
-			Details:   utils.StringPtr("Invalid HTTP method: " + behaviorHeader[0]),
+			Details:   Ptr("Invalid HTTP method: " + behaviorHeader[0]),
 		}
 	}
 
@@ -105,7 +104,7 @@ func propagateResponseBehavior(behavior *model.Behavior, property ini.Property) 
 		return &MalformedPropertyError{
 			LineIndex: property.LineIndex,
 			Line:      property.Key + "=" + property.Value,
-			Details:   utils.StringPtr("Unknown property: " + property.Key),
+			Details:   Ptr("Unknown property: " + property.Key),
 		}
 	}
 
@@ -118,7 +117,7 @@ func parseStatusCode(responseBehavior *model.ResponseBehavior, property ini.Prop
 		return &MalformedPropertyError{
 			LineIndex: property.LineIndex,
 			Line:      property.Key + "=" + property.Value,
-			Details:   utils.StringPtr("Invalid status code, must be an integer between 100 and 599"),
+			Details:   Ptr("Invalid status code, must be an integer between 100 and 599"),
 		}
 	}
 	responseBehavior.StatusCode = Ptr(uint16(statusCode))
@@ -131,7 +130,7 @@ func parseDelay(responseBehavior *model.ResponseBehavior, property ini.Property)
 		return &MalformedPropertyError{
 			LineIndex: property.LineIndex,
 			Line:      property.Key + "=" + property.Value,
-			Details:   utils.StringPtr("Invalid delay, must be a non-negative duration"),
+			Details:   Ptr("Invalid delay, must be a non-negative duration"),
 		}
 	}
 	responseBehavior.Delay = &delayDuration
@@ -148,7 +147,7 @@ func parseHeaderAttribute(responseBehavior *model.ResponseBehavior, property ini
 		return &MalformedPropertyError{
 			LineIndex: property.LineIndex,
 			Line:      property.Key + "=" + property.Value,
-			Details:   utils.StringPtr("Invalid header format, expected 'Key: Value'"),
+			Details:   Ptr("Invalid header format, expected 'Key: Value'"),
 		}
 	}
 
@@ -158,7 +157,7 @@ func parseHeaderAttribute(responseBehavior *model.ResponseBehavior, property ini
 		return &MalformedPropertyError{
 			LineIndex: property.LineIndex,
 			Line:      property.Key + "=" + property.Value,
-			Details:   utils.StringPtr("Header key and value cannot be empty"),
+			Details:   Ptr("Header key and value cannot be empty"),
 		}
 	}
 
@@ -183,7 +182,7 @@ func parseCookie(responseBehavior *model.ResponseBehavior, property ini.Property
 			return &MalformedPropertyError{
 				LineIndex: property.LineIndex,
 				Line:      property.Key + "=" + property.Value,
-				Details:   utils.StringPtr("Invalid cookie.expires duration"),
+				Details:   Ptr("Invalid cookie.expires duration"),
 			}
 		}
 		cookie.Expires = time.Now().Add(dur)
@@ -193,7 +192,7 @@ func parseCookie(responseBehavior *model.ResponseBehavior, property ini.Property
 			return &MalformedPropertyError{
 				LineIndex: property.LineIndex,
 				Line:      property.Key + "=" + property.Value,
-				Details:   utils.StringPtr("Invalid cookie.raw_expires RFC3339 time"),
+				Details:   Ptr("Invalid cookie.raw_expires RFC3339 time"),
 			}
 		}
 		cookie.RawExpires = property.Value
@@ -204,7 +203,7 @@ func parseCookie(responseBehavior *model.ResponseBehavior, property ini.Property
 			return &MalformedPropertyError{
 				LineIndex: property.LineIndex,
 				Line:      property.Key + "=" + property.Value,
-				Details:   utils.StringPtr("Invalid cookie.max_age integer"),
+				Details:   Ptr("Invalid cookie.max_age integer"),
 			}
 		}
 		cookie.MaxAge = maxAge
@@ -224,7 +223,7 @@ func parseCookie(responseBehavior *model.ResponseBehavior, property ini.Property
 			return &MalformedPropertyError{
 				LineIndex: property.LineIndex,
 				Line:      property.Key + "=" + property.Value,
-				Details:   utils.StringPtr("Invalid cookie.same_site value"),
+				Details:   Ptr("Invalid cookie.same_site value"),
 			}
 		}
 	case "cookie.partitioned":
@@ -233,7 +232,7 @@ func parseCookie(responseBehavior *model.ResponseBehavior, property ini.Property
 		return &MalformedPropertyError{
 			LineIndex: property.LineIndex,
 			Line:      property.Key + "=" + property.Value,
-			Details:   utils.StringPtr("Unknown cookie property: " + property.Value),
+			Details:   Ptr("Unknown cookie property: " + property.Value),
 		}
 	}
 	responseBehavior.Cookies = append(responseBehavior.Cookies, cookie)
@@ -247,7 +246,7 @@ func praseRepeat(behavior *model.Behavior, property ini.Property) error {
 		return &MalformedPropertyError{
 			LineIndex: property.LineIndex,
 			Line:      property.Key + "=" + property.Value,
-			Details:   utils.StringPtr("Invalid repeat value, must be a non-negative integer"),
+			Details:   Ptr("Invalid repeat value, must be a non-negative integer"),
 		}
 	}
 	repeatUint := uint(repeat)
