@@ -1,5 +1,4 @@
 # TODO
-* Handler
 * Server
 * Conditional match
 * Wildcard path
