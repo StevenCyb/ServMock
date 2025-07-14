@@ -10,6 +10,7 @@ import (
 	"github.com/StevenCyb/ServMock/pkg/model"
 )
 
+// Build constructs a BehaviorSet from the provided sections.
 func Build(sections []ini.Section) (*model.BehaviorSet, error) {
 	bs := &model.BehaviorSet{}
 
