@@ -53,7 +53,7 @@ cookie.same_site = Lax
 
 ## Whats next
 * Docker image build
-* Conditional match
 * Wildcard path
-* Replacement from path, query or req body to response
+* Conditional match
+* Value extraction and referencing (path|query|body)
 
