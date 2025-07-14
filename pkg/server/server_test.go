@@ -7,6 +7,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/StevenCyb/ServMock/pkg/model"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -17,7 +18,7 @@ func TestServerStartupShutdown(t *testing.T) {
 
 	t.Parallel()
 
-	server := New(":8080")
+	server := New(":8080", &model.BehaviorSet{})
 	errorChan := server.Start()
 
 	time.Sleep(500 * time.Millisecond)

@@ -15,7 +15,8 @@ type Server struct {
 	behaviorSet *model.BehaviorSet
 }
 
-func New(listen string) *Server {
+// New creates a new Server instance with the specified listen address.
+func New(listen string, behaviorSet *model.BehaviorSet) *Server {
 	server := &Server{
 		Server: http.Server{
 			Addr:         listen,
@@ -23,13 +24,19 @@ func New(listen string) *Server {
 			WriteTimeout: 30 * time.Second,
 			IdleTimeout:  60 * time.Second,
 		},
-		behaviorSet: &model.BehaviorSet{},
+		behaviorSet: behaviorSet,
 	}
 	server.Handler = http.HandlerFunc(server.handleRequest)
 
 	return server
 }
 
+// handleRequest processes incoming HTTP requests and serves mock responses based on the behavior set.
+func (s *Server) SetBehaviorSet(behaviorSet *model.BehaviorSet) {
+	s.behaviorSet = behaviorSet
+}
+
+// handleRequest is the main request handler for the server.
 func (s *Server) Start() <-chan error {
 	errorChan := make(chan error, 1)
 
@@ -42,6 +49,7 @@ func (s *Server) Start() <-chan error {
 	return errorChan
 }
 
+// Shutdown gracefully stops the server, allowing for ongoing requests to complete.
 func (s *Server) Shutdown(ctx context.Context) error {
 	if err := s.Server.Shutdown(ctx); err != nil {
 		return err
