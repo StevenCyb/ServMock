@@ -51,6 +51,20 @@ cookie.http_only = true
 cookie.same_site = Lax
 ```
 
+### Docker image
+```bash
+# Simple:
+# Default is /app/config/config.ini
+docker pull stevencyb/servmock:latest \
+  -p 3000:3000 \
+  -v config:/app/config
+# Custom path
+docker pull stevencyb/servmock:latest \
+  -p 3000:3000 \
+  -v config:/custom/path  \
+  -e CONFIG_PATH=/custom/path/openai.ini
+```
+
 ## Whats next
 * Docker image build
 * Wildcard path
