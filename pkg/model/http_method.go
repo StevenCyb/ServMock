@@ -2,21 +2,21 @@ package model
 
 import "strings"
 
-// HttpMethod represents the HTTP methods used in behaviors.
-type HttpMethod string
+// HTTPMethod represents the HTTP methods used in behaviors.
+type HTTPMethod string
 
 const (
-	MethodGet     HttpMethod = "GET"
-	MethodPost    HttpMethod = "POST"
-	MethodPut     HttpMethod = "PUT"
-	MethodDelete  HttpMethod = "DELETE"
-	MethodPatch   HttpMethod = "PATCH"
-	MethodHead    HttpMethod = "HEAD"
-	MethodOptions HttpMethod = "OPTIONS"
+	MethodGet     HTTPMethod = "GET"
+	MethodPost    HTTPMethod = "POST"
+	MethodPut     HTTPMethod = "PUT"
+	MethodDelete  HTTPMethod = "DELETE"
+	MethodPatch   HTTPMethod = "PATCH"
+	MethodHead    HTTPMethod = "HEAD"
+	MethodOptions HTTPMethod = "OPTIONS"
 )
 
-// HttpMethodFromString converts a string to an HttpMethod.
-func HttpMethodFromString(method string) (HttpMethod, bool) {
+// HTTPMethodFromString converts a string to an HttpMethod.
+func HTTPMethodFromString(method string) (HTTPMethod, bool) {
 	method = strings.ToUpper(method)
 	switch method {
 	case "GET":

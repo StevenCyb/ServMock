@@ -9,6 +9,7 @@ import (
 	"github.com/StevenCyb/ServMock/pkg/model"
 )
 
+//nolint:gocognit
 func (s *Server) handleRequest(w http.ResponseWriter, r *http.Request) {
 	matchingBehavior, statusCode := s.findMatchingBehavior(r)
 	if matchingBehavior == nil {
@@ -62,7 +63,10 @@ func (s *Server) handleRequest(w http.ResponseWriter, r *http.Request) {
 
 		flusher.Flush()
 	} else if matchingBehavior.Body != nil {
-		w.Write([]byte(*matchingBehavior.Body))
+		if _, err := w.Write([]byte(*matchingBehavior.Body)); err != nil {
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
 	}
 }
 
@@ -71,7 +75,7 @@ func (s *Server) findMatchingBehavior(r *http.Request) (*model.ResponseBehavior,
 	var statusCode = http.StatusOK
 
 	for i, behavior := range s.behaviorSet.Behaviors {
-		if behavior.Method == model.HttpMethod(r.Method) && behavior.URL == r.URL.Path {
+		if behavior.Method == model.HTTPMethod(r.Method) && behavior.URL == r.URL.Path {
 			if behavior.Repeat != nil {
 				*behavior.Repeat--
 				if *behavior.Repeat <= 0 {

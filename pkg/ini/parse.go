@@ -9,6 +9,8 @@ import (
 // Parse reads INI data from the reader and returns sections in order of appearance.
 // If `allowDuplicated=true` allows multiple sections with the same name
 // else duplicate section headers merge into the first occurrence.
+//
+//nolint:gocognit,nestif
 func Parse(r io.Reader, allowDuplicated bool) ([]Section, error) {
 	scanner := bufio.NewScanner(r)
 	lineIndex := uint64(0)
@@ -28,7 +30,7 @@ func Parse(r io.Reader, allowDuplicated bool) ([]Section, error) {
 		if strings.HasPrefix(line, "[") && strings.HasSuffix(line, "]") {
 			name := strings.TrimSpace(line[1 : len(line)-1])
 			if name == "" {
-				return nil, EmptySectionNameError
+				return nil, ErrEmptySectionName
 			}
 			// Find existing or append new
 			found := false

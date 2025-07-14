@@ -17,7 +17,6 @@ func (e *MalformedBehaviorHeaderError) Error() string {
 	return "Malformed behavior header at line " + strconv.FormatUint(e.LineIndex, 10) + ": " + e.Line
 }
 
-
 // MalformedPropertyError indicates an error in the property format.
 type MalformedPropertyError struct {
 	LineIndex uint64

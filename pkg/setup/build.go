@@ -10,6 +10,8 @@ import (
 	"github.com/StevenCyb/ServMock/pkg/model"
 )
 
+const twoParts = 2
+
 // Build constructs a BehaviorSet from the provided sections.
 func Build(sections []ini.Section) (*model.BehaviorSet, error) {
 	bs := &model.BehaviorSet{}
@@ -20,7 +22,7 @@ func Build(sections []ini.Section) (*model.BehaviorSet, error) {
 			return nil, err
 		}
 		for _, property := range section.Properties {
-			if err := propagateResponseBehavior(behavior, property); err != nil {
+			if err = propagateResponseBehavior(behavior, property); err != nil {
 				return nil, err
 			}
 		}
@@ -46,8 +48,8 @@ func buildBehavior(section ini.Section, bs *model.BehaviorSet) (*model.Behavior,
 }
 
 func parseBehaviorHeader(behaviors *model.Behavior, line string, lineIndex uint64) error {
-	behaviorHeader := strings.SplitN(strings.Trim(line, "[]"), " ", 2)
-	if len(behaviorHeader) != 2 {
+	behaviorHeader := strings.SplitN(strings.Trim(line, "[]"), " ", twoParts)
+	if len(behaviorHeader) != twoParts {
 		return &MalformedBehaviorHeaderError{Line: line, LineIndex: lineIndex}
 	}
 
@@ -56,7 +58,7 @@ func parseBehaviorHeader(behaviors *model.Behavior, line string, lineIndex uint6
 		return &MalformedBehaviorHeaderError{Line: line, LineIndex: lineIndex, Details: Ptr("URL cannot be empty")}
 	}
 
-	method, match := model.HttpMethodFromString(behaviorHeader[0])
+	method, match := model.HTTPMethodFromString(behaviorHeader[0])
 	if !match {
 		return &MalformedBehaviorHeaderError{
 			Line:      line,
@@ -144,8 +146,8 @@ func parseHeaderAttribute(responseBehavior *model.ResponseBehavior, property ini
 		responseBehavior.Headers = make(map[string]string)
 	}
 
-	headerParts := strings.SplitN(property.Value, ":", 2)
-	if len(headerParts) != 2 {
+	headerParts := strings.SplitN(property.Value, ":", twoParts)
+	if len(headerParts) != twoParts {
 		return &MalformedPropertyError{
 			LineIndex: property.LineIndex,
 			Line:      property.Key + "=" + property.Value,
@@ -167,20 +169,22 @@ func parseHeaderAttribute(responseBehavior *model.ResponseBehavior, property ini
 	return nil
 }
 
+//nolint:funlen
 func parseCookie(responseBehavior *model.ResponseBehavior, property ini.Property) error {
 	var cookie *http.Cookie
-	if property.Key == "cookie.name" {
+	switch {
+	case property.Key == "cookie.name":
 		cookie = &http.Cookie{}
 		responseBehavior.Cookies = append(responseBehavior.Cookies, cookie)
 		cookie.Name = property.Value
 		return nil
-	} else if len(responseBehavior.Cookies) == 0 {
+	case len(responseBehavior.Cookies) == 0:
 		return &MalformedPropertyError{
 			LineIndex: property.LineIndex,
 			Line:      property.Key + "=" + property.Value,
 			Details:   Ptr("cookie.name must be set before other cookie properties"),
 		}
-	} else {
+	default:
 		cookie = responseBehavior.Cookies[len(responseBehavior.Cookies)-1]
 	}
 

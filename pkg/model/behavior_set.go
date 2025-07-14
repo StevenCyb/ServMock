@@ -25,7 +25,7 @@ type ResponseBehavior struct {
 // Behavior defines the structure of a behavior with an associated HTTP method and URL.
 type Behavior struct {
 	*ResponseBehavior
-	Method HttpMethod
+	Method HTTPMethod
 	URL    string
 	Repeat *uint
 }

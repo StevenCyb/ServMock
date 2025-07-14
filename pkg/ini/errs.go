@@ -5,8 +5,8 @@ import (
 	"fmt"
 )
 
-// MalformedBehaviorHeaderError indicates an error in the behavior header format.
-var EmptySectionNameError = errors.New("empty section name")
+// ErrEmptySectionName indicates an error in the behavior header format.
+var ErrEmptySectionName = errors.New("empty section name")
 
 // MalformedPropertyError indicates an error in the property format.
 type EmptyKeyError struct {

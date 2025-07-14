@@ -20,7 +20,13 @@ import (
 	"github.com/StevenCyb/ServMock/pkg/watcher"
 )
 
+const checkFileChangeInterval = 1000
+const shutdownTimeout = 15 * time.Second
+
 func main() {
+	logger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
+		Level: slog.LevelInfo,
+	}))
 	c := cli.New(
 		cli.Name("ServMock"),
 		cli.Banner(`
@@ -52,34 +58,34 @@ func main() {
 						return fmt.Errorf("invalid or missing path: %s", *path)
 					}
 					listen := ctx.GetOption("listen")
-					if listen == nil || regexp.MustCompile(`^(localhost|127\.0\.0\.1)?:\d+$`).MatchString(*listen) == false {
+					if listen == nil || !regexp.MustCompile(`^(localhost|127\.0\.0\.1)?:\d+$`).MatchString(*listen) {
 						return fmt.Errorf("invalid or missing listen: %s", *listen)
 					}
 
-					slog.Info("Service mock listen", "listen", *listen, "path", *path)
+					logger.Info("Service mock listen", "listen", *listen, "path", *path)
 
 					s := server.New(*listen, &model.BehaviorSet{})
 
 					configErr := make(chan error, 1)
 					watcherErr := make(chan error, 1)
-					w := watcher.NewWatcher(*path, 1000)
+					w := watcher.NewWatcher(*path, checkFileChangeInterval)
 					w.RegisterListener(func(path string) {
-						slog.Info("Configuration file changed", "path", path)
+						logger.Info("Configuration file changed", "path", path)
 						file, err := os.Open(path)
 						if err != nil {
-							watcherErr <- fmt.Errorf("failed to open config file: %v", err)
+							watcherErr <- fmt.Errorf("failed to open config file: %w", err)
 							return
 						}
 						defer file.Close()
 						sections, err := ini.Parse(file, true)
 						if err != nil {
-							watcherErr <- fmt.Errorf("failed to parse config file: %v", err)
+							watcherErr <- fmt.Errorf("failed to parse config file: %w", err)
 							return
 						}
 
 						bs, err := setup.Build(sections)
 						if err != nil {
-							configErr <- fmt.Errorf("failed to build behavior set: %v", err)
+							configErr <- fmt.Errorf("failed to build behavior set: %w", err)
 							return
 						}
 
@@ -105,7 +111,7 @@ func main() {
 
 					log.Println("Server is shutting down...")
 
-					shutdownCtx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+					shutdownCtx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
 					defer cancel()
 
 					if err := s.Shutdown(shutdownCtx); err != nil {
@@ -122,7 +128,7 @@ func main() {
 
 	_, err := c.RunWith(os.Args)
 	if err != nil {
-		slog.Error("Error running CLI", "error", err)
+		logger.Error("Error running CLI", "error", err)
 		c.PrintHelp()
 		os.Exit(1)
 	}

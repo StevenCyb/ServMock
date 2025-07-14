@@ -10,6 +10,7 @@ import (
 	"github.com/StevenCyb/ServMock/pkg/model"
 	"github.com/StevenCyb/ServMock/pkg/setup"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestServerStartupShutdown(t *testing.T) {
@@ -37,7 +38,7 @@ func TestServerStartupShutdown(t *testing.T) {
 
 	time.Sleep(500 * time.Millisecond)
 	resp, err := http.Get("http://localhost:8080/")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, 201, resp.StatusCode)
 	if resp.Body != nil {
 		resp.Body.Close()
@@ -45,12 +46,12 @@ func TestServerStartupShutdown(t *testing.T) {
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
-	assert.NoError(t, server.Shutdown(ctx))
+	require.NoError(t, server.Shutdown(ctx))
 
 	select {
-	case err := <-errorChan:
+	case err = <-errorChan:
 		if err != nil && err.Error() != "http: Server closed" {
-			assert.NoError(t, err, "Server should start and shutdown without error")
+			require.NoError(t, err, "Server should start and shutdown without error")
 		}
 	case <-time.After(1 * time.Second):
 		// No error received, assume normal shutdown

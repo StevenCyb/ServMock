@@ -6,11 +6,12 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 type errReader struct{}
 
-func (e *errReader) Read(p []byte) (int, error) {
+func (e *errReader) Read(_ []byte) (int, error) {
 	return 0, errors.New("read error")
 }
 
@@ -28,7 +29,7 @@ password = secret
 `
 
 	sections, err := Parse(strings.NewReader(raw), false)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Len(t, sections, 3)
 	assert.Equal(t, "default", sections[0].Name)
 	assert.Len(t, sections[0].Properties, 1)
@@ -56,7 +57,7 @@ foo=bar
 baz = qux
 `
 	sections, err := Parse(strings.NewReader(raw), false)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Len(t, sections, 1)
 	assert.Equal(t, "default", sections[0].Name)
 	assert.Len(t, sections[0].Properties, 2)
@@ -77,10 +78,10 @@ key=value
 ; trailing comment
 `
 	sections, err := Parse(strings.NewReader(raw), false)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Len(t, sections, 2)
 	assert.Equal(t, "default", sections[0].Name)
-	assert.Len(t, sections[0].Properties, 0)
+	assert.Empty(t, sections[0].Properties)
 	assert.Equal(t, "sec", sections[1].Name)
 	assert.Len(t, sections[1].Properties, 1)
 	assert.Equal(t, "key", sections[1].Properties[0].Key)
@@ -92,7 +93,7 @@ func TestEmptySectionNameError(t *testing.T) {
 key=val
 `
 	_, err := Parse(strings.NewReader(raw), false)
-	assert.Equal(t, EmptySectionNameError, err)
+	assert.Equal(t, ErrEmptySectionName, err)
 }
 
 func TestEmptyKeyError(t *testing.T) {
@@ -101,13 +102,13 @@ func TestEmptyKeyError(t *testing.T) {
  =value
 `
 	_, err := Parse(strings.NewReader(raw), false)
-	assert.Error(t, err)
+	require.Error(t, err)
 	assert.EqualError(t, err, "empty key in section [sec]")
 }
 
 func TestScannerError(t *testing.T) {
 	_, err := Parse(&errReader{}, false)
-	assert.Error(t, err)
+	require.Error(t, err)
 	assert.EqualError(t, err, "read error")
 }
 
@@ -119,7 +120,7 @@ a=1
 b=2
 `
 	sections, err := Parse(strings.NewReader(raw), false)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Len(t, sections, 2)
 	dup := sections[1]
 	assert.Equal(t, "dup", dup.Name)
@@ -138,7 +139,7 @@ a=1
 b=2
 `
 	sections, err := Parse(strings.NewReader(raw), true)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Len(t, sections, 3)
 	dup := sections[1]
 	dup2 := sections[2]
@@ -163,7 +164,7 @@ a=1
 b=2
 `
 	sections, err := Parse(strings.NewReader(raw), true)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Len(t, sections, 3)
 	assert.Equal(t, 0, int(sections[0].LineIndex))
 	assert.Equal(t, 4, int(sections[1].LineIndex))

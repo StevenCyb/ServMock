@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestWatcher_InitialFileCheck(t *testing.T) {
@@ -17,7 +18,7 @@ func TestWatcher_InitialFileCheck(t *testing.T) {
 
 	triggered := false
 	w := NewWatcher(f.Name(), 5000)
-	w.RegisterListener(func(s string) {
+	w.RegisterListener(func(_ string) {
 		triggered = true
 	})
 	w.Start()
@@ -34,7 +35,7 @@ func TestWatcher_FileChangeTriggersListener(t *testing.T) {
 	defer os.Remove(f.Name())
 
 	triggered := false
-	listener := func(path string) {
+	listener := func(_ string) {
 		triggered = true
 	}
 
@@ -46,10 +47,16 @@ func TestWatcher_FileChangeTriggersListener(t *testing.T) {
 	time.Sleep(1 * time.Second)
 
 	_, err = f.WriteString("change")
-	assert.NoError(t, err, "failed to write to file")
+	require.NoError(t, err, "failed to write to file")
 	f.Sync()
 
-	assert.Eventually(t, func() bool { return triggered }, 500*time.Millisecond, 20*time.Millisecond, "Listener was not triggered on file change")
+	assert.Eventually(
+		t,
+		func() bool { return triggered },
+		500*time.Millisecond,
+		20*time.Millisecond,
+		"Listener was not triggered on file change",
+	)
 }
 
 func TestWatcher_StartStopIdempotent(t *testing.T) {
@@ -77,7 +84,7 @@ func TestWatcher_NoListenerNoPanic(t *testing.T) {
 	w.Start()
 	defer w.Stop()
 
-	if _, err := f.WriteString("change"); err != nil {
+	if _, err = f.WriteString("change"); err != nil {
 		t.Fatalf("failed to write to file: %v", err)
 	}
 	f.Sync()

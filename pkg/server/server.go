@@ -10,6 +10,9 @@ import (
 	"github.com/StevenCyb/ServMock/pkg/model"
 )
 
+const readWriteTimeout = 30 * time.Second
+const idleTimeout = 60 * time.Second
+
 type Server struct {
 	http.Server
 	behaviorSet *model.BehaviorSet
@@ -20,9 +23,9 @@ func New(listen string, behaviorSet *model.BehaviorSet) *Server {
 	server := &Server{
 		Server: http.Server{
 			Addr:         listen,
-			ReadTimeout:  30 * time.Second,
-			WriteTimeout: 30 * time.Second,
-			IdleTimeout:  60 * time.Second,
+			ReadTimeout:  readWriteTimeout,
+			WriteTimeout: readWriteTimeout,
+			IdleTimeout:  idleTimeout,
 		},
 		behaviorSet: behaviorSet,
 	}
