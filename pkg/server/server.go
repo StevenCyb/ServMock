@@ -5,61 +5,47 @@ import (
 	"errors"
 	"log"
 	"net/http"
-	"os"
-	"os/signal"
-	"syscall"
 	"time"
 
 	"github.com/StevenCyb/ServMock/pkg/model"
 )
 
 type Server struct {
+	http.Server
 	behaviorSet *model.BehaviorSet
 }
 
-func Run() {
-	mux := http.NewServeMux()
-
-	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Hello, World!"))
-	})
-
-	server := &http.Server{
-		Addr:         ":8787",
-		Handler:      mux,
-		ReadTimeout:  15 * time.Second,
-		WriteTimeout: 15 * time.Second,
-		IdleTimeout:  60 * time.Second,
+func New(listen string) *Server {
+	server := &Server{
+		Server: http.Server{
+			Addr:         listen,
+			ReadTimeout:  30 * time.Second,
+			WriteTimeout: 30 * time.Second,
+			IdleTimeout:  60 * time.Second,
+		},
+		behaviorSet: &model.BehaviorSet{},
 	}
+	server.Handler = http.HandlerFunc(server.handleRequest)
 
-	serverError := make(chan error, 1)
+	return server
+}
+
+func (s *Server) Start() <-chan error {
+	errorChan := make(chan error, 1)
 
 	go func() {
-		log.Printf("Server is running on http://localhost%s", server.Addr)
-		if err := server.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
-			serverError <- err
+		if err := s.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
+			errorChan <- err
 		}
 	}()
 
-	stop := make(chan os.Signal, 1)
-	signal.Notify(stop, os.Interrupt, syscall.SIGTERM)
+	return errorChan
+}
 
-	select {
-	case err := <-serverError:
-		log.Printf("Server error: %v", err)
-	case sig := <-stop:
-		log.Printf("Received shutdown signal: %v", sig)
+func (s *Server) Shutdown(ctx context.Context) error {
+	if err := s.Server.Shutdown(ctx); err != nil {
+		return err
 	}
-
-	log.Println("Server is shutting down...")
-
-	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
-	defer cancel()
-
-	if err := server.Shutdown(ctx); err != nil {
-		log.Printf("Server shutdown error: %v", err)
-		return
-	}
-
-	log.Println("Server exited properly")
+	log.Println("Server shutdown gracefully")
+	return nil
 }
