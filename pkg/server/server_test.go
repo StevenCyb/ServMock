@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/StevenCyb/ServMock/pkg/model"
+	"github.com/StevenCyb/ServMock/pkg/setup"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -18,13 +19,26 @@ func TestServerStartupShutdown(t *testing.T) {
 
 	t.Parallel()
 
-	server := New(":8080", &model.BehaviorSet{})
+	server := New(":8080", &model.BehaviorSet{
+		DefaultBehavior: &model.ResponseBehavior{
+			StatusCode: setup.Ptr(uint16(404)),
+		},
+		Behaviors: []*model.Behavior{
+			{
+				URL:    "/",
+				Method: "GET",
+				ResponseBehavior: &model.ResponseBehavior{
+					StatusCode: setup.Ptr(uint16(201)),
+				},
+			},
+		},
+	})
 	errorChan := server.Start()
 
 	time.Sleep(500 * time.Millisecond)
 	resp, err := http.Get("http://localhost:8080/")
 	assert.NoError(t, err)
-	assert.Equal(t, 404, resp.StatusCode)
+	assert.Equal(t, 201, resp.StatusCode)
 	if resp.Body != nil {
 		resp.Body.Close()
 	}

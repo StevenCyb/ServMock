@@ -52,7 +52,7 @@ cookie.same_site = Lax
 ```
 
 ## Whats next
-* Server
+* slog
 * Linting
 * Documentation
 * Pipeline tests

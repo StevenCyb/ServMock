@@ -21,7 +21,7 @@ func (s *Server) handleRequest(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if matchingBehavior.StatusCode != nil {
-		statusCode = int(*s.behaviorSet.DefaultBehavior.StatusCode)
+		statusCode = int(*matchingBehavior.StatusCode)
 	}
 	w.WriteHeader(statusCode)
 
