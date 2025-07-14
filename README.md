@@ -52,9 +52,6 @@ cookie.same_site = Lax
 ```
 
 ## Whats next
-* Linting
-* Documentation
-* Pipeline tests
 * Docker image build
 * Conditional match
 * Wildcard path
