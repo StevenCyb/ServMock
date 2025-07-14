@@ -48,6 +48,7 @@ func (w *Watcher) Stop() {
 }
 
 func (w *Watcher) poll() {
+	w.checkFile()
 	ticker := time.NewTicker(time.Duration(w.interval) * time.Millisecond)
 	defer ticker.Stop()
 	for {
