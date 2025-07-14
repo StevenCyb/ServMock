@@ -26,6 +26,6 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           push: true
-          tags: stevencyb/speedtest:latest
+          tags: stevencyb/servmock:latest
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
