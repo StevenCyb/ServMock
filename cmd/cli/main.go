@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"log/slog"
 	"os"
 	"os/signal"
 	"regexp"
@@ -55,7 +56,7 @@ func main() {
 						return fmt.Errorf("invalid or missing listen: %s", *listen)
 					}
 
-					fmt.Printf("Serving mock service on %s with behaviors from %s\n", *listen, *path)
+					slog.Info("Service mock listen", "listen", *listen, "path", *path)
 
 					s := server.New(*listen, &model.BehaviorSet{})
 
@@ -63,7 +64,7 @@ func main() {
 					watcherErr := make(chan error, 1)
 					w := watcher.NewWatcher(*path, 1000)
 					w.RegisterListener(func(path string) {
-						fmt.Printf("Configuration file changed: %s\n", path)
+						slog.Info("Configuration file changed", "path", path)
 						file, err := os.Open(path)
 						if err != nil {
 							watcherErr <- fmt.Errorf("failed to open config file: %v", err)
@@ -121,7 +122,7 @@ func main() {
 
 	_, err := c.RunWith(os.Args)
 	if err != nil {
-		fmt.Println(err)
+		slog.Error("Error running CLI", "error", err)
 		c.PrintHelp()
 		os.Exit(1)
 	}
