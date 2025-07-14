@@ -8,6 +8,24 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestWatcher_InitialFileCheck(t *testing.T) {
+	f, err := os.CreateTemp("", "watcher_test_*.txt")
+	if err != nil {
+		t.Fatalf("failed to create temp file: %v", err)
+	}
+	defer os.Remove(f.Name())
+
+	triggered := false
+	w := NewWatcher(f.Name(), 5000)
+	w.RegisterListener(func(s string) {
+		triggered = true
+	})
+	w.Start()
+	defer w.Stop()
+	time.Sleep(100 * time.Millisecond)
+	assert.True(t, triggered, "Listener should be triggered on initial file check")
+}
+
 func TestWatcher_FileChangeTriggersListener(t *testing.T) {
 	f, err := os.CreateTemp("", "watcher_test_*.txt")
 	if err != nil {

@@ -35,6 +35,9 @@ func (w *Watcher) Start() {
 		return
 	}
 	w.running = true
+	if w.listener != nil {
+		w.listener(w.path)
+	}
 	go w.poll()
 }
 
@@ -48,7 +51,6 @@ func (w *Watcher) Stop() {
 }
 
 func (w *Watcher) poll() {
-	w.checkFile()
 	ticker := time.NewTicker(time.Duration(w.interval) * time.Millisecond)
 	defer ticker.Stop()
 	for {
