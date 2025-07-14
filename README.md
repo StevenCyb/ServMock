@@ -57,14 +57,16 @@ cookie.same_site = Lax
 docker pull stevencyb/servmock:latest
 # Simple:
 # Default is /app/config/config.ini
-docker run stevencyb/servmock:latest \
+docker run \
   -p 3000:3000 \
-  -v config:/app/config
+  -v ./config:/app/config \
+  stevencyb/servmock:latest 
 # Custom path
-docker pull stevencyb/servmock:latest \
+docker run \
   -p 3000:3000 \
-  -v config:/custom/path  \
-  -e CONFIG_PATH=/custom/path/openai.ini
+  -v ./config:/custom/path  \
+  -e CONFIG_PATH=/custom/path/openai.ini \
+  stevencyb/servmock:latest 
 ```
 
 ## Whats next
