@@ -55,13 +55,12 @@ cookie.same_site = Lax
 ```bash
 # Pull the latest image
 docker pull stevencyb/servmock:latest
-# Simple:
-# Default is /app/config/config.ini
+# Default path is /app/config/config.ini
 docker run \
   -p 3000:3000 \
   -v ./config:/app/config \
   stevencyb/servmock:latest 
-# Custom path
+# Custom path can be set like
 docker run \
   -p 3000:3000 \
   -v ./config:/custom/path  \
