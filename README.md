@@ -37,7 +37,7 @@ redirect = http://example.com
 ; Respond with a Server-Sent Event (SSE)
 ; Body will be split by new lines and sent as events.
 sse = false
-; Response cookies can also bet set with the following properties.
+; Response cookies can also be set with the following properties.
 ; `cookie.name` must be the first one since it indicates a start of a cookie.
 cookie.name = username
 cookie.value = steven
