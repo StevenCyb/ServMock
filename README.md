@@ -69,8 +69,8 @@ docker run \
 ```
 
 ## Whats next
-* Docker image build
 * Wildcard path
-* Conditional match
-* Value extraction and referencing (path|query|body)
+* Conditional behavior match
+* Value extraction and referencing/ingesting (path|query|body)
+* Simple storage
 
